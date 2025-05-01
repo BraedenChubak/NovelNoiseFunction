@@ -12,8 +12,10 @@ public class NoiseFunction {
             int width = data[0].length;
             int height = data.length;
             BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+            BufferedImage imageBW = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
             Graphics2D g2d = image.createGraphics();
+            Graphics2D g2dBW = imageBW.createGraphics();
             int max = findMax(data);
             int min = findMin(data);
 
@@ -27,17 +29,28 @@ public class NoiseFunction {
                     int red = (int) (255 * normalizedValue);
                     int blue = 255 - red;
                     Color color = new Color(red, 0, blue);
+                    Color colorBW = new Color(red, red, red);
 
                     g2d.setColor(color);
                     g2d.fillRect(x, y, 1, 1); // Draw a 1x1 pixel rectangle
+
+                    g2dBW.setColor(colorBW);
+                    g2dBW.fillRect(x, y, 1, 1);
                 }
             }
 
             g2d.dispose();
+            g2dBW.dispose();
 
             File outputFile = new File("heatmap.png");
             ImageIO.write(image, "png", outputFile);
             System.out.println("Heatmap image saved to heatmap.png");
+
+            File outputFileBW = new File("heatmapBW.png");
+            ImageIO.write(imageBW, "png", outputFileBW);
+            System.out.println("B&W Heatmap image saved to heatmapBW.png");
+
+
         } catch(IOException e) {
             System.out.println("Exception occured :" + e.getMessage());
         }
