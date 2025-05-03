@@ -13,11 +13,14 @@ public class NoiseFunction {
             int height = data.length;
             BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             BufferedImage imageBW = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+            BufferedImage imageBWGated = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
             Graphics2D g2d = image.createGraphics();
             Graphics2D g2dBW = imageBW.createGraphics();
+            Graphics2D g2dBWG = imageBWGated.createGraphics();
             int max = findMax(data);
             int min = findMin(data);
+            int avg = findAvg(data);
 
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
@@ -30,17 +33,24 @@ public class NoiseFunction {
                     int blue = 255 - red;
                     Color color = new Color(red, 0, blue);
                     Color colorBW = new Color(red, red, red);
+                    Color colorBWG;
+                    if (value >= avg) { colorBWG = new Color(255, 255, 255); }
+                    else { colorBWG = new Color(0, 0, 0); }
 
                     g2d.setColor(color);
                     g2d.fillRect(x, y, 1, 1); // Draw a 1x1 pixel rectangle
 
                     g2dBW.setColor(colorBW);
                     g2dBW.fillRect(x, y, 1, 1);
+
+                    g2dBWG.setColor(colorBWG);
+                    g2dBWG.fillRect(x, y, 1, 1);
                 }
             }
 
             g2d.dispose();
             g2dBW.dispose();
+            g2dBWG.dispose();
 
             File outputFile = new File("heatmap.png");
             ImageIO.write(image, "png", outputFile);
@@ -49,6 +59,10 @@ public class NoiseFunction {
             File outputFileBW = new File("heatmapBW.png");
             ImageIO.write(imageBW, "png", outputFileBW);
             System.out.println("B&W Heatmap image saved to heatmapBW.png");
+
+            File outputFileBWG = new File("heatmapBWG.png");
+            ImageIO.write(imageBWGated, "png", outputFileBWG);
+            System.out.println("B&W Gated Heatmap image saved to heatmapBWG.png");
 
 
         } catch(IOException e) {
@@ -74,6 +88,17 @@ public class NoiseFunction {
           }
       }
       return min;
+    }
+
+    private static int findAvg(int[][] data) {
+        int avg = 0;
+        for (int[] row : data) {
+            for (int value : row) {
+                avg += value;
+            }
+        }
+        avg /= data.length * data[0].length;
+        return avg;
     }
 
     public static int[][] genNoise(int l, int w, double chainFreq, double jaggedness, boolean scrambled) {
