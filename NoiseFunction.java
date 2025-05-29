@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import java.text.DecimalFormat;
 
 public class NoiseFunction {
     public static void generateMap(int[][] data) {
@@ -187,6 +188,7 @@ public class NoiseFunction {
         double jaggedness = input.nextDouble();
         System.out.print("scrambled: ");
         boolean scrambled = input.nextBoolean();
+        int startTime = (int)System.currentTimeMillis();
         int[][] noise = genNoise(l, w, chainFreq, jaggedness, scrambled);
         
         /*
@@ -228,5 +230,44 @@ public class NoiseFunction {
         */
 
         generateMap(noise);
+        int endTime = (int)System.currentTimeMillis();
+        int totalTime = (endTime - startTime);
+        System.out.println("Runtime: " + totalTime + " ms");
+
+        /*
+        int maxVal = 0;
+        int minVal = Integer.MAX_VALUE;
+        for (int i = 0; i < noise.length; i++) {
+            for (int j = 0; j < noise[0].length; j++) {
+                if (noise[i][j] > maxVal) { maxVal = noise[i][j]; }
+                if (noise[i][j] < minVal) { minVal = noise[i][j]; }
+            }
+        }
+        ArrayList<double[]> distribution = new ArrayList<>();
+        for (int i = minVal; i < maxVal; i++) {
+            double[] curVal = new double[2];
+            curVal[0] = (double)(i-minVal)/(maxVal-minVal);
+            curVal[1] = 0;
+            distribution.add(curVal);
+        }
+        for (int i = 0; i < noise.length; i++) {
+            for (int j = 0; j < noise[0].length; j++) {
+                for (int k = 0; k < distribution.size(); k++) {
+                    double[] current = distribution.get(k);
+                    if (current[0] == (double)(noise[i][j]-minVal)/(maxVal-minVal)) {
+                        current[1]++;
+                    }
+                }
+            }
+        }
+        for (int i = 0; i < distribution.size(); i++) {
+            double[] current = distribution.get(i);
+            current[1] = current[1] / (double)(noise.length * noise[0].length);
+            DecimalFormat df = new DecimalFormat("#.###");
+            String formatted = df.format(current[1]);
+            System.out.print("(" + current[0] + "," + formatted + "),");
+        }
+        */
+
     }
 }
