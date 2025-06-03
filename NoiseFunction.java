@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import java.text.DecimalFormat;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class NoiseFunction {
     public static void generateMap(int[][] data) {
@@ -234,7 +236,7 @@ public class NoiseFunction {
         int totalTime = (endTime - startTime);
         System.out.println("Runtime: " + totalTime + " ms");
 
-        /*
+        
         int maxVal = 0;
         int minVal = Integer.MAX_VALUE;
         for (int i = 0; i < noise.length; i++) {
@@ -243,31 +245,24 @@ public class NoiseFunction {
                 if (noise[i][j] < minVal) { minVal = noise[i][j]; }
             }
         }
-        ArrayList<double[]> distribution = new ArrayList<>();
-        for (int i = minVal; i < maxVal; i++) {
-            double[] curVal = new double[2];
-            curVal[0] = (double)(i-minVal)/(maxVal-minVal);
-            curVal[1] = 0;
-            distribution.add(curVal);
-        }
-        for (int i = 0; i < noise.length; i++) {
-            for (int j = 0; j < noise[0].length; j++) {
-                for (int k = 0; k < distribution.size(); k++) {
-                    double[] current = distribution.get(k);
-                    if (current[0] == (double)(noise[i][j]-minVal)/(maxVal-minVal)) {
-                        current[1]++;
-                    }
+
+        try {
+            FileWriter writer = new FileWriter("100samples/sample1.txt");
+            for (int i = 0; i < noise.length; i++) {
+                for (int j = 0; j < noise[0].length; j++) {
+                    double current = (double)(noise[i][j]-minVal)/(maxVal-minVal);
+                    current = (double)Math.round(current*1000) / 1000.0;
+                    String toWrite = current + ",\n";
+                    writer.write(toWrite);
                 }
             }
+            writer.close();
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
         }
-        for (int i = 0; i < distribution.size(); i++) {
-            double[] current = distribution.get(i);
-            current[1] = current[1] / (double)(noise.length * noise[0].length);
-            DecimalFormat df = new DecimalFormat("#.###");
-            String formatted = df.format(current[1]);
-            System.out.print("(" + current[0] + "," + formatted + "),");
-        }
-        */
+
+
 
     }
 }
