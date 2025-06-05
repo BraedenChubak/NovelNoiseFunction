@@ -5,7 +5,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
-import java.text.DecimalFormat;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -147,6 +146,50 @@ public class NoiseFunction {
             }
         }
 
+        // filter values to make better distribution
+        int maxVal = 0;
+        int minVal = noise[0][0];
+        for (int i = 0; i < noise.length; i++) {
+            for (int j = 0; j < noise[0].length; j++) {
+                if (noise[i][j] > maxVal) { maxVal = noise[i][j]; }
+                if (noise[i][j] < minVal) { minVal = noise[i][j]; }
+            }
+        }
+        int[] countVals = new int[maxVal+1];
+        for (int i = 0; i < noise.length; i++) {
+            for (int j = 0; j < noise[0].length; j++) {
+                countVals[noise[i][j]]++;
+            }
+        }
+        int mode = 0;
+        int modeVal = countVals[0];
+        for (int i = 1; i < countVals.length; i++) {
+            if (countVals[i] >= modeVal) {
+                modeVal = countVals[i];
+                mode = i;
+            }
+        }
+        int filteredMax = mode*2;
+        double ratio = (maxVal) / (double)filteredMax;
+        for (int i = 0; i < noise.length; i++) {
+            for (int j = 0; j < noise[0].length; j++) {
+                noise[i][j] = (int)(maxVal * Math.pow(noise[i][j], 4/9.0)); // 0.450158 is a rounding of sqrt(2) / pi
+            }
+        }
+        minVal = noise[0][0];
+        for (int i = 0; i < noise.length; i++) {
+            for (int j = 0; j < noise[0].length; j++) {
+                if (noise[i][j] < minVal) { minVal = noise[i][j]; }
+            }
+        }
+        for (int i = 0; i < noise.length; i++) {
+            for (int j = 0; j < noise[0].length; j++) {
+                noise[i][j] = noise[i][j] - minVal;
+            }
+        }
+
+
+        // scramble if scrambled
         if (scrambled) {
             int[][] scrNoise = new int[l][w];
             for (int i = 0; i < l; i++) { Arrays.fill(scrNoise[i], -1); }
@@ -219,25 +262,7 @@ public class NoiseFunction {
         }
         */
 
-        /*
-        int[] valueSpread = new int[maxVal+1];
-        for (int i = 0; i < noise.length; i++) {
-            for (int j = 0; j < noise[0].length; j++) {
-                valueSpread[noise[i][j]]++;
-            }
-        }
-        for (int i = 0; i <= maxVal; i++) {
-            System.out.println(i + ": " + valueSpread[i]);
-        }
-        */
-
-        generateMap(noise);
-        int endTime = (int)System.currentTimeMillis();
-        int totalTime = (endTime - startTime);
-        System.out.println("Runtime: " + totalTime + " ms");
-
-        
-        int maxVal = 0;
+       int maxVal = 0;
         int minVal = Integer.MAX_VALUE;
         for (int i = 0; i < noise.length; i++) {
             for (int j = 0; j < noise[0].length; j++) {
@@ -246,8 +271,9 @@ public class NoiseFunction {
             }
         }
 
+        /* file writing
         try {
-            FileWriter writer = new FileWriter("100samples/sample1.txt");
+            FileWriter writer = new FileWriter("50samples/sample0.txt");
             for (int i = 0; i < noise.length; i++) {
                 for (int j = 0; j < noise[0].length; j++) {
                     double current = (double)(noise[i][j]-minVal)/(maxVal-minVal);
@@ -261,8 +287,45 @@ public class NoiseFunction {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
+        */
 
+        generateMap(noise);
+        int endTime = (int)System.currentTimeMillis();
+        int totalTime = (endTime - startTime);
+        System.out.println("Runtime: " + totalTime + " ms");
 
+    /*  for generating the 50samples
+        for (int n = 0; n < 50; n++) {
+            int[][] noise = genNoise(1000, 1000, 8, 0.25, false);
+            int maxVal = 0;
+            int minVal = Integer.MAX_VALUE;
+            for (int i = 0; i < noise.length; i++) {
+                for (int j = 0; j < noise[0].length; j++) {
+                    if (noise[i][j] > maxVal) { maxVal = noise[i][j]; }
+                    if (noise[i][j] < minVal) { minVal = noise[i][j]; }
+                }
+            }
+
+            try {
+                String filename = ("50samples/sample" + n + ".txt");
+                FileWriter writer = new FileWriter(filename);
+                for (int i = 0; i < noise.length; i++) {
+                    for (int j = 0; j < noise[0].length; j++) {
+                        double current = (double)(noise[i][j]-minVal)/(maxVal-minVal);
+                        current = (double)Math.round(current*1000) / 1000.0;
+                        String toWrite = current + ",\n";
+                        writer.write(toWrite);
+                    }
+                }
+                writer.close();
+            } catch (IOException e) {
+                System.out.println("An error occurred.");
+                e.printStackTrace();
+            }
+        }
+        */
+
+        
 
     }
 }
